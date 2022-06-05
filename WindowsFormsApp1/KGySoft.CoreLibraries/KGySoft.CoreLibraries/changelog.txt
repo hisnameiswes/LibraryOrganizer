@@ -1,0 +1,1111 @@
+﻿Legend:
+! Breaking change
+* Compatible change
+- Bugfix
++ New feature
+===============================================================================
+
+~~~~~~~~~
+- v6.0.2:
+~~~~~~~~~
+
+- KGySoft.CoreLibraries namespace:
+==================================
+- EnumComparer<TEnum> class: fixing possible AccessViolationException in .NET Core 3.0 and above when a consumer
+  project targets the x86 platform.
+
+
+~~~~~~~~~
+* v6.0.1:
+~~~~~~~~~
+
+* Common changes:
+=================
+* Using C# 8.0 readonly modifier for all possible properties and methods of non-readonly public structs.
+
+* KGySoft.CoreLibraries namespace:
+==================================
++ EnumerableExtensions class: New TryGetCount methods.
+- Enum<TEnum> class: fixing possible VerificationException from partially trusted domains created by an assembly
+  with Level2 security (eg. the sandbox domains in .NET Fiddle). Affects .NET Framework 4.x only.
+- RandomExtensions class: NextBigInteger methods did not always use the full specified range.
+
+
+~~~~~~~~~
+! v6.0.0:
+~~~~~~~~~
+
++ Assembly changes:
+===================
++ Targeting also .NET Core 2.1
++ Targeting also .NET 6.0.
+
++ KGySoft namespace:
+====================
++ LanguageSettings class:
+  + New DynamicResourceManagersResXResourcesDir property to be able to control the path of the resources for all
+    DynamicResourceManager instances with centralized settings.
+  + New EnsureResourcesGenerated, EnsureInvariantResourcesMerged, SavePendingResources and ReleaseAllResources
+    methods to provide more control over the centralized DynamicResourceManager instances.
+
+! KGySoft.CoreLibraries namespace:
+==================================
+! ByteArrayExtensions class:
+  ! Encrypt/Decrypt methods without a specified SymmetricAlgorithm use the Aes class instead of RijndaelManaged,
+    which has been obsoleted starting with .NET 6. This is a breaking change only if we want to use the Decrypt
+    method for the result of Encrypt of a previous version (though as a workaround, you still can explicitly pass
+    a RijndaelManaged instance to the Decrypt overloads).
+! FastRandom class:
+  ! The NextInt64() method used to return any long value. Unfortunately .NET 6.0 also introduced a method with the
+    very same name but with a different behavior. To consolidate the behavior starting with this version this method
+    returns values greater or equal to zero and less than Int64.MaxValue.
+    Use the new SampleInt64 method to generate any long value.
+  ! NextInt32 method: To harmonize behavior with NextInt64 it returns a non-negative value less than Int32.MaxValue,
+    just like Next(). Use the new SampleInt32 method to generate any int value.
+  ! NextUInt64 method: To harmonize behavior with the methods above it now always returns smaller values
+    than UInt64.MaxValue. Use (ulong)SampleInt64 method to generate any ulong value.
+  ! NextUInt32 method: To harmonize behavior with the methods above it now always returns smaller values
+    than UInt32.MaxValue. Use (uint)SampleInt32 method to generate any uint value.
+  + New constructor overload from Guid seed
+  + New NextInt64(long)/NextInt64(long, long) methods (even below .NET 6.0 where base does not have such methods).
+  + New NextSingle method (even below .NET 6.0 where base does not have such method).
+  + New SampleInt64 method. It has the same behavior as the NextInt64 used to have before this version.
+  + New SampleInt32 method. It has the same behavior as the NextInt32 used to have before this version.
+! ObjectExtensions class:
+  ! [Try]Convert methods:
+    ! When converting to string using round-trip formats for some natively supported types that can be restored by
+      an opposite [Try]Convert or by StringExtensions.[Try]Parse without losing precision or information, including
+      negative zero value or time zone.
+    + Using string as a fallback intermediate step if the registered conversions could not be used.
+    + Natively supporting conversion between char and Rune collections in both ways (.NET Core 3.0 and above)
+! RandomExtensions class:
+  ! To be conform with the new NextInt64 methods appeared in .NET 6, Next[U]Int64, Next[U]Int32, Next[U]Int16 and
+    Next[S]Byte methods without minValue/maxValue parameters from now on return only non-negative values,
+    and never return the possible maximum value of their type. Use the Sample* methods to return any value.
+  + New SampleSByte, SampleByte, SampleInt16, SampleUInt16, SampleInt32, SampleUInt32, SampleInt64 and SampleUInt64
+    methods to generate any integer value of their corresponding type.
+  + New NextBigInteger and SampleBigInteger methods (.NET Framework 4.0 and above)
+  + New NextRune methods (.NET Core 3.0 and above)
+  + New NextHalf methods (.NET 5.0 and above)
+  + New NextDateOnly and NextTimeOnly methods (.NET 6.0 and above)
+  + NextObject methods:
+    + Supporting BigInteger, considers GenerateObjectSettings.CollectionsLength (.NET Framework 4.0 and above)
+    + Supporting Rune (.NET Core 3.0 and above)
+    + Supporting Half (.NET 5.0 and above)
+    + Supporting DateOnly and TimeOnly (.NET 6.0 and above)
+  * Improving performance
++ ThreadSafeRandom class:
+  + New NextInt64 methods (even below .NET 6.0 where base does not have such methods).
+  + New NextSingle method (even below .NET 6.0 where base does not have such method).
++ DateTimeExtensions class:
+  + New AsLocal method
+  + New ToUnixMilliseconds/ToUnixSeconds and FromUnixMilliseconds/FromUnixSeconds methods
++ EnumFormattingOptions enum: New Number option.
++ StringExtensions class:
+  + [Try]Parse methods:
+    + Natively supporting BigInteger type (.NET Framework 4.0 and above)
+    + Natively supporting Rune type (.NET Core 3.0 and above)
+    + Natively supporting Half type (.NET 5.0 and above)
+    + Natively supporting DateOnly and TimeOnly types (.NET 6.0 and above)
++ SpanExtensions class:
+  + [Try]Parse methods:
+    + Natively supporting BigInteger type (.NET Framework 4.0 and above)
+    + Natively supporting Rune type (.NET Core 3.0 and above)
+    + Natively supporting Half type (.NET 5.0 and above)
+    + Natively supporting DateOnly and TimeOnly types (.NET 6.0 and above)
++ StringSegmentComparer class:
+  + New OrdinalRandomized property
+  + New OrdinalIgnoreCaseRandomized property
+* Enum<TEnum> class:
+  + New TryFormat methods to allow writing enum values in Span<char> (.NET Standard 2.1 and above)
+  + ToString(TEnum,EnumFormattingOptions,string): Supporting EnumFormattingOptions.Number option
+  * GetFlags(TEnum,bool) method: the bool parameter (onlyDefinedValues) is now optional
+* EnumExtensions class:
+  * GetFlags<TEnum>(TEnum,bool) method: the bool parameter (onlyDefinedValues) is now optional
+* SecureRandom class: improving performance
+- Files class:
+  - GetExecutingPath method: in .NET Framework it could throw an exception from a partially trusted domain.
+
+* KGySoft.Collections namespace:
+================================
++ ArraySection<T> struct:
+  + New public UnderlyingArray and Offset properties so it's not needed to obtain the AsArraySegment property
+    to access the underlying array.
++ StringKeyedDictionary class:
+  + New constructor with (int capacity, bool ignoreCase, bool useRandomizedHash) parameters
+  + New constructor with (bool ignoreCase, bool useRandomizedHash) parameters
++ ThreadSafeDictionaryClass:
+  + New PreserveMergedKeys property
+  + New TrimExcess method
+  - Automatic merging could occur even if MergeInterval was negative.
+* EnumerableExtensions class:
+  * Shuffle methods:
+    * Improving performance
+    + New overload with Guid seed
+  * GetRandomElement methods: Improving performance if source is not a list
+
+! KGySoft.ComponentModel namespace:
+===================================
+! ValidationResultsCollection
+  ! The type of the Errors, Warnings and Infos properties have been changed to ValidationResultsCollection. When
+    recompiling existing code, this is a non-breaking change and solves also the incompatibility issue between the
+    <=.NET 4.0 vs. other targets used different types (IList<ValidationResult> vs. IReadOnlyList<ValidationResult>).
+  + New Empty field
+  + New this[string] indexer
+  + New Message property that combines all messages in this instance.
+  + New TryGetFirstWithHighestSeverity method
++ SortableBindingList class:
+  + New public writable and nullable SortDirection property (the non-nullable read-only IBindingList implementation
+    is an explicit one and used to be exposed as a protected property)
++ ICommandBinding interface
+  + New Error event
++ New CommandBindingErrorContext enum
++ New CommandBindingErrorEventArgs class
++ BinaryTypeConverter: Adding InstanceDescriptor support
++ EncodingConverter:
+  + Adding InstanceDescriptor support
+  - Supporting null reference
++ VersionConverter class:
+  + Adding InstanceDescriptor support
+  + Adding Version support (which is cloning like in .NET Core)
+  - Supporting null reference
++ StringSegmentConverter: Adding InstanceDescriptor support
+- ValidatingObjectBase class
+  - PropertyChanged could be triggered for the ValidationResults property even without any change.
+- ValidationResult class:
+  - Adding the missing Serializable attribute (ValidationResultsCollection was serializable anyway)
+
++ KGySoft.Resources namespace:
+==============================
++ ResXDataNode class:
+  + Supporting BigInteger type natively in non-compatible mode (.NET Framework 4.0 and above)
+  + Supporting Rune type natively in non-compatible mode (.NET Core 3.0 and above)
+  + Supporting Half type natively in non-compatible mode (.NET 5.0 and above)
+  + Supporting DateOnly and TimeOnly types natively in non-compatible mode (.NET 6.0 and above)
++ DynamicResourceManager class:
+  + New EnsureResourcesGenerated and EnsureInvariantResourcesMerged methods to be able to (re)generate merged
+    resource sets for a specified culture respecting the currently set merging options.
++ ResXResourceManager class:
+  + New IgnoreResXParseErrors property
++ HybridResourceManager class:
+  + New IgnoreResXParseErrors property
+- ResXResourceWriter class:
+  - Generate method: Calling Generate without adding any content used to save an empty file. Now the header and the
+    root element is generated even without adding any content.
+
+! KGySoft.Serialization.Binary namespace:
+=========================================
+! BinarySerializer class:
+  ! SerializeValueType method: Using direct content serialization instead of the Marshal class for value types
+    that contain no references. This means a huge performance improvement but also that the result can be
+    incompatible with the previous versions for some value types. As a fallback, marshaling has also been preserved
+    so this is a breaking change only when considering the content of the produced byte array by previous versions.
+  ! TrySerializeValueType method: It no longer serializes value types that have references. Performance improvement.
+  ! DeserializeValueType methods: They might not be able to deserialize the content of the previous versions.
+  ! [Try]SerializeValueArray, DeserializeValueArray methods: replacing the 'struct' constraint to 'unmanaged'.
+    Performance improvement, fixing possible exception about non-blittable types.
+  ! Serialize* methods: 
+      ! Starting with this version The BinarySerializationOptions.CompactSerializationOfStructures flag affects
+        structs only without any references, which is very fast. Marshaling is used only if the obsolete
+        ForcedSerializationValueTypesAsFallback flag is enabled.
+      ! The produced stream is not compatible with previous versions.
+  + New generic [Try]SerializeValueType and DeserializeValueType overloads. They work only for value types without
+    any references.
+! BinarySerializationFormatter class:
+  ! Serialize* methods:
+    ! Starting with this version the BinarySerializationOptions.CompactSerializationOfStructures flag affects
+      structs only without any references, which is very fast. Marshaling is used only if the obsolete
+      ForcedSerializationValueTypesAsFallback flag is enabled.
+    ! Deserializing value types with references from raw data is not allowed in safe mode.
+    ! The produced stream is not compatible with previous versions.
+  + Supporting the BigInteger type natively (.NET Framework 4.0 and above)
+  + Supporting the Rune type natively (.NET Core 3.0 and above)
+  + Supporting the Index and Range types natively (.NET Standard 2.1 and above)
+  + Supporting the Half type natively (.NET 5.0 and above)
+  + Supporting the DateOnly and TimeOnly types natively (.NET 6.0 and above)
+
+! KGySoft.Serialization.Xml namespace:
+======================================
+! XmlSerializer class:
+  ! Serialize* methods: Starting with this version the XmlSerializationOptions.CompactSerializationOfStructures
+    flag affects structs only without any references, which is very fast.
+  ! Deserializing value types with references from raw data is not allowed in safe mode.
+  + Supporting the BigInteger type natively (.NET Framework 4.0 and above)
+  + Supporting the Rune type natively (.NET Core 3.0 and above)
+  + Supporting the Half type natively (.NET 5.0 and above)
+  + Supporting the DateOnly and TimeOnly types natively (.NET 6.0 and above)
+
+
+~~~~~~~~~
+* v5.6.1:
+~~~~~~~~~
+
+- KGySoft.Collections namespace:
+================================
+- ThreadSafeCacheFactory class: When using lock free caches, fixing possible VerificationException
+  from partially trusted domains (eg. in .NET Fiddle). Affects .NET Framework only.
+
+* KGySoft.CoreLibraries namespace:
+==================================
+* ObjectExtensions class:
+  + New DeepClone<T>(T, Func<object, object?>?) method: The original DeepClone overload was less and less
+    reliable on the newer platforms as it uses binary serialization. This new overload performs a more direct
+    cloning and also allows customization or transformation by specifying a delegate.
+  * The existing DeepClone<T>(T, bool) method has been made obsolete in non-Framework targets in favor of the
+    new overload. But even in .NET Framework this overload is recommended only for remote objects to create a
+    local copy.
+
+- KGySoft.Diagnostics namespace:
+================================
+- PerformanceTestBase<TDelegate, TResult> class:
+  - Fixing time-based tests interval on some platforms.
+
+* KGySoft.Serialization.Binary namespace:
+=========================================
+* BinarySerializationFormatter class:
+  * SafeMode now protects against various OutOfMemoryException attacks as well.
+
+* KGySoft.Serialization.Xml namespace:
+======================================
+* XmlSerializer class:
+  * DeserializeSafe and DeserializeContentSafe methods protect against some OutOfMemoryException attacks as well.
+
+
+~~~~~~~~~
+! v5.6.0:
+~~~~~~~~~
+
+MOST IMPORTANT CHANGES: Safe deserialization support (BinarySerializationFormatter, XmlSerializer, ResXDataNode)
+
+! Assembly changes:
+===================
+! The module initializer initializes the internal resources so configuring LanguageSettings from a consumer code
+  is able to configure the resources even if no actual resource was accessed before.
+* Members are annotated for using C# 8.0 nullable references
+
++ KGySoft namespace:
+====================
++ PublicResource class: New publicly available localizable resources.
+
+! KGySoft.Collections namespace:
+================================
+! ArraySection<T> struct:
+  ! The indexer and the GetElementReference method do not allow out-of-range indices anymore, even if the underlying
+    array is large enough.
+  ! Serialization saves the represented array only instead of the whole underlying array and offset/length.
+  - AsArraySegment property returns a default ArraySegment<T> if the underlying array is null.
++ New ThreadSafeDictionary<TKey, TValue> class
++ New ThreadSafeCacheFactory class
++ New ThreadSafeCacheOptionsBase/LockFreeCacheOptions/LockingCacheOptions classes
++ New HashingStrategy enum
+* Cache<TKey, TValue> class: balancing out hashing performance
+
+! KGySoft.Collections.ObjectModel namespace:
+============================================
+! VirtualCollection<T> class:
+  ! The protected RemoveItem(int) method was renamed to RemoveItemAt(int) and a new virtual RemoveItem(T) method
+    has been introduced.
+  * Count property and ContainsItem method have been made virtual, too.
+! FastLookupCollection<T> class:
+  ! Inconsistency detection has been changed (may not detect the same cases as before) because the internal map is
+    simply dropped when it would be too expensive to maintain.
+  - Fixing binary deserialization
+  * Improving performance, reducing memory consumption
+* SortableBindingList<T> class:
+  * Improving performance, reducing memory consumption
+  * Faster sorted enumerator implementation (from now on it supports also the Reset method)
+
+! KGySoft.CoreLibraries namespace:
+==================================
+! StringSegment struct:
+  ! Split methods use StringSegmentSplitOptions struct in place of the old bool removeEmptyEntries parameter.
+    There is a conversion from bool to StringSegmentSplitOptions (marked as obsolete) so the change is breaking
+    only if the various overloads were called with named removeEmptyEntries argument or by reflection.
+- RandomExtensions class:
+  - NextObject methods: Fixing the interpretation of GenerateObjectSettings.ChanceOfNull property for all cases.
+- ThreadSafeRandom class:
+  - If an instance was created by the factory constructor, then after disposing the Next... members could throw
+    a NullReferenceException. Now a disposed instance will throw an ObjectDisposedException instead.
+- TypeExtensions class:
+  - IsImplementationOfGenericType method: fixing possible infinite loop
++ New DelegateExtensions class.
++ DictionaryExtensions class:
+  + New TryAdd, TryUpdate, AddOrUpdate, GetOrAdd and TryRemove methods.
++ New StringSegmentSplitOptions struct: Implicitly compatible with StringSplitOptions enumeration but contains
+  the TrimEntries flag on every platform target.
+
+! KGySoft.ComponentModel namespace:
+===================================
+! BinaryTypeConverter:
+  ! ConvertFrom method: using safe mode deserialization to prevent loading assemblies during the conversion.
+- FastBindingList<T>:
+  - FindCore method: The default implementation could throw an ArgumentNullException if the binding list contained
+    a null element.
+- SortableBindingList<T>:
+  - SetItem/InsertItem methods: Not throwing an ArgumentNullException if the list is sorted by a property and a null
+    item is set or inserted
+- StringSegmentConverter: Differentiating null and empty segments.
+
+! KGySoft.Diagnostics namespace:
+================================
+! PerformanceTestBase class:
+  ! Default value of CpuAffinity is null. So from now on it must be explicitly set to restrict test execution to a
+    single core.
+! PerformanceTestBase<TDelegate, TResult> class:
+  ! Warming up is time based even if Iterations is greater than 0. This provides more reliable results for low
+    iteration counts.
+  + New Initialize, TearDown, BeforeCase and AfterCase events.
+
+* KGySoft.Resources namespace:
+==============================
++ ResXDataNode class:
+  + New GetValueSafe method that ensures that no assemblies are loaded during the deserialization.
+* ResXResourceWriter class:
+  + New SafeMode property that ensures that no assemblies are loaded when writing ResXDataNode instances
+    whose raw data has to be regenerated to create a compatible .resx content.
+  * AddResource(string, byte[]) method: allowing null array to be conform with the nullability of the
+    IResourceWriter interface.
+  * AddMetadata(string, byte[]) method: allowing null array to be conform with AddResource(string, byte[]).
+
+! KGySoft.Serialization.Binary namespace:
+=========================================
++ BinarySerializationOptions enum:
+  + New SafeMode flag that can ensure that no assemblies are loaded during deserialization when using
+    BinarySerializer/BinarySerializationFormatter classes. It also prevents deserializing non-serializable types.
+! The AnyObjectSerializerWrapper class has been made obsolete:
+  ! As the safety context of the consumer formatter cannot be determined, AnyObjectSerializerWrapper deserialization
+    uses safe mode, which denies deserializing non-serializable types. It renders this type useless, though it was
+    meant for BinaryFormatter anyway, which is also being obsoleted in upcoming .NET versions. To serialize
+    non-serializable types you still can use BinarySerializationFormatter, which now supports SafeMode (see above),
+    which should be enabled when deserializing anything from an untrusted source.
++ ForwardedTypesSerializationBinder class:
+  + New SafeMode property that can ensure that no assemblies are loaded when resolving types by the fallback logic.
++ WeakAssemblySerializationBinder class:
+  + New SafeMode property that can ensure that no assemblies are loaded when resolving types.
++ CustomSerializerSurrogateSelector class:
+  + New IsTypeSupported property that can be assigned by a delegate to explicitly tell what types are supported.
+  + New SafeMode property that can ensure that non-serializable types are not serialized and deserialized if
+    the IsTypeSupported property is null.
++ NameInvariantSurrogateSelector class:
+  + New SafeMode property that can ensure that non-serializable types are not serialized and deserialized.
+
++ KGySoft.Serialization.Xml namespace:
+======================================
++ XmlSerializer class:
+  + New DeserializeSafe and DeserializeContentSafe methods.
+
+
+~~~~~~~~~
+* v5.5.0:
+~~~~~~~~~
+
++ Assembly changes:
+===================
++ Targeting also .NET 5.0.
+  KNOWN .NET 5.0 PERFORMANCE REGRESSION: https://github.com/dotnet/runtime/issues/44457
+
+* KGySoft.CoreLibraries namespace:
+==================================
+* EnumerableExtensions class:
+  * Improving performance of Shuffle<T>(IEnumerable<T>, Random) method.
+* StringSegmentComparer class:
+  * When targeting .NET 5.0 or later, then Equals(ReadOnlySpan<char>, ReadOnlySpan<char>) and
+    Compare(ReadOnlySpan<char>, ReadOnlySpan<char>) overloads can avoid allocating new strings even for
+    cultures other than InvariantCulture and CurrentCulture.
+
+
+~~~~~~~~~
+! v5.4.0:
+~~~~~~~~~
+
+! KGySoft.CoreLibraries namespace:
+==================================
+! ThreadSafeRandom class:
+  ! Sequences of a given seed are not the same as in the previous versions
+  ! The public constructors have been made obsolete. Use the static members instead.
+  ! Implementing IDisposable. Instances created by the non-default constructor and the Create methods should be
+    disposed to prevent memory leaks.
+  * Improving performance, especially for the static Instance property (it doesn't use locks anymore)
+  + New Create method that accepts a delegate to provide a thread-safe wrapper for any Random implementation.
+  + New Create method that replaces the seed-specifying constructor
++ New FastRandom class
+* RandomExtensions class:
+  - NextInt64/NetxUInt64 methods: For wide ranges it was possible to return the maxValue even if upper bound was
+    not inclusive
+  * NextByte/NextSByte/Next[U]Int* methods: improving performance in several cases
+* SafeRandom class:
+  * Improving performance
+
++ KGySoft.ComponentModel namespace:
+===================================
++ Command class: New CreateSynchronizedPropertyBinding methods
++ CommandBindingsCollection: New CreateSynchronizedPropertyBinding methods
+
+- KGySoft.Resources namespace:
+==============================
+- ResXFileRef class: The inner converter does not dispose the memory stream after creating the object from stream,
+  which solves some rare issues with resources that need to keep the initializer stream to be kept alive.
+
+! KGySoft.Serialization.Binary namespace:
+=========================================
+! BinarySerializationFormatter class:
+  ! Natively supported serialization of StringBuilder have been changed (produced stream is not compatible with
+    previous versions)
+  - Natively supported serialization of StringBuilder preserves MaxCapacity
+  - In .NET 3.5 fixing a deserialization issue affecting some generic collections with nullable element type.
+
+
+~~~~~~~~~
+* v5.3.0:
+~~~~~~~~~
+
++ KGySoft.CoreLibraries namespace:
+==================================
++ The ArrayExtensions class has been made public along with some new members:
+  + New AsSection methods
+  + New AsArray2D/AsArray3D methods
+* ByteArrayExtensions class: Improving performance of To*String methods, reducing number of allocations.
++ DoubleExtensions class:
+  + New TolerantIsZero/TolerantEquals/TolerantCeiling/TolerantFloor methods
++ Enum<TEnum> class:
+  + New Parse/TryParse overloads with StringSegment parameters
+  + New Parse/TryParse overloads with ReadOnlySpan<char> parameters (.NET Core 3.0/.NET Standard 2.1 and above)
+  + New IsDefined overload with StringSegment parameter
+  + New IsDefined overload with ReadOnlySpan<char> parameter (.NET Core 3.0/.NET Standard 2.1 and above)
++ EnumerableExtensions class: New Join overload.
+* Files class:
+  + New GetRelativePath overload with a bool isCaseSensitive parameter
+  * Improving GetRelativePath path performance and reducing allocations
++ FloatExtensions class:
+  + New TolerantIsZero/TolerantEquals/TolerantCeiling/TolerantFloor methods
++ New SpanExtensions class (.NET Core 3.0/.NET Standard 2.1 and above):
+  + The same Parse/TryParse methods as are in StringExtensions
+  + The same Read/ReadToSeparator/ReadLine methods as are in StringSegmentExtensions
+  + ToEnum method
+  + RemoveQuoes methods
+* StringExtensions class: Improving performance of parser methods, reducing number of allocations.
++ StringSegment struct:
+  + New IsNullOrWhiteSpace property
+  + New Split overloads with ReadOnlySpan<char> separator (.NET Core 3.0/.NET Standard 2.1 and above)
+  + New IndexOf/LastIndexOf/StartsWith/EndsWith overloads with ReadOnlySpan<char> value (.NET Core 3.0/.NET Standard
+    2.1 and above)
+  + New Trim/TrimStart/TrimEnd overloads to allow specifying characters to trim
++ StringSegmentComparer class:
+  + Implements also IComparer<string> and IEqualityComparer<string>
+  + Now supports comparison between string and ReadOnlySpan<char> instances as well so it can be used in a
+    StringKeyedCollection<TValue> instance as a comparer to lookup entries by string, StringSegment or
+    ReadOnlySpan<char> (.NET Core 3.0/.NET Standard 2.1 and above) instances without allocating new strings.
++ StringSegmentExtensions class:
+  + New ReadToSeparator overload with ReadOnlySpan<char> separator (.NET Core 3.0/.NET Standard 2.1 and above)
+  + New ToEnum method
+  + New RemoveQuoes method
+
+* KGySoft.Collections namespace:
+================================
+* ArraySection struct:
+  - Fixing strange debugger display issue for VS2019
+  + New constructor overload
+  + New AsArray2D/AsArray3D methods
+* Cache<TKey, TValue> class:
+  * Improving general performance (using a different hashing)
++ New IStringKeyedDictionary<TValue> interface
++ New IStringKeyedReadOnlyDictionary<TValue> interface (.NET 4.5 and above)
++ New StringKeyedDictionary<TValue> class, which allows lookup operations also by StringSegment and
+  ReadOnlySpan<char> (.NET Core 3.0/.NET Standard 2.1 and above)
+
+
+~~~~~~~~~
+* v5.2.0:
+~~~~~~~~~
+
++ KGySoft namespace:
+====================
++ PublicResources class: New IndexOutOfRange property
+
++ KGySoft.CoreLibraries namespace:
+==================================
++ The StringSegment type has been made public. It offers a sort of string operations without allocating new strings.
+  Several new public members were added such as:
+  + [Last]IndexOf[Any]
+  + Substring
+  + Trim[Start/End]
+  + Split
+  + Conversion and comparison members (numerous Equals/Compare/StartsWith/EndsWith overloads)
+  + AsSpan, AsMemory (only in .NET Core 3.0 and .NET Standard 2.1)
++ New StringSegmentComparer class: provides equality and lexical comparers for the StringSegment type
++ New StringSegmentEnumerator struct
++ New StringSegmentExtensions class: provides various reader methods for the StringSegment struct, which behave
+  as if they mutated (consume) a StringSegment instance, similarly to a StringReader.
+* ObjectExtensions class:
+  + New In<T> overload with IEnumerable<T> parameter type.
+  - Convert/TryConvert methods: Fixing some edge-cases for type converters and fixed-size collections
++ EnumerableExtensions class: New Join method.
+- WaitHandleExtensions: Fixing ambiguity when WaitOneAsync is called without additional parameters.
+
++ KGySoft.Collections namespace:
+================================
++ New ArraySection struct
++ New ArraySectionEnumerator struct
++ New Array2D struct
++ New Array3D struct
+
++ KGySoft.ComponentModel namespace:
+===================================
++ New StringSegmentConverter class
+* ObservableObjectBase class performance: AffectsModifiedState is not queried if IsModified is already true.
+
+
+~~~~~~~~~
+* v5.1.1:
+~~~~~~~~~
+
+- KGySoft.CoreLibraries namespace:
+==================================
+- EnumerableExtensions class: Fixing a case in IsNullOrEmpty(IEnumerable) method.
+- Files class: Fixing GetRelativePath for non-fully qualified yet rooted paths such as "C:x"
+
++ KGySoft.ComponentModel namespace:
+===================================
++ ObservableObjectBase class: New protected IsDisposed property.
+
+
+~~~~~~~~~
+! v5.1.0:
+~~~~~~~~~
+
+! KGySoft.CoreLibraries namespace:
+==================================
+! Files class:
+   - GetExecutingPath method: result is fixed for .NET Core 2.0.
+   + New CreateWithPath and TryCreateWithPath methods
+   ! CanCreate is now obsolete in favor of TryCreateWithPath.
+
+! KGySoft.ComponentModel namespace:
+==========================================
+! ICommand interface: The Execute method now has a new object parameter argument
++ ICommandBinding interface
+  + New WithParameter method
+  + The InvokeCommand method has now a new optional object parameter argument
++ New SimpleCommand<TParam>, SourceAwareCommand<TEventArgs, TParam>, TargetedCommand<TTarget, TParam>,
+  SourceAwareTargetedCommand<TEventArgs, TTarget, TParam> classes for parameterized commands
++ CommandBindingsCollection: New Add overloads for implicit parameterized commands
+! IPersistableObject interface:
+  ! TryGetPropertyValue does not throw an InvalidOperationException anymore if CanGetProperty returns false.
+    In such case TryGetPropertyValue returns false.
+  + New CanGetProperty and CanSetProperty methods: they expose the protected ObservableObjectBase.CanGetProperty and
+    CanSetProperty methods via the PersistableObjectBase implementation
++ ObservableObjectBase and its derived types in Core Libraries are now serializable
+! ObservableObjectBase
+  ! The inner storage is cleared on disposing. Most members will throw an ObjectDisposedException afterwards.
+    If the Dispose(bool) method is overridden, then after calling the base implementation observed properties will
+    not be accessible anymore.
+  * Improving performance of Get/Set methods
+  - CanGetProperty and CanSetProperty methods:
+    - The default implementations recognize also private properties of base classes (they can use Get/Set methods).
+    - If a class had overloaded indexers, then an exception was thrown. Now the type of the firstly defined indexer
+      of the most derived class is considered. If the indexers with different return types are set by the Set
+      method, then you need to override the CanSetProperty method.
+    - If a derived class had non-overridden properties of the same name as the base class, then an exception was
+      thrown. Now the most derived property is considered. If you want to set a property of the same name but
+      different type in the base class you need to override the CanSetProperty method.
+- PersistableObjectBase: Fixing TryReplaceProperty if originalValue is MissingProperty
++ ValidatingObjectBase: The Validate method has been made public. Not needed if changing validated properties
+  trigger the PropertyChanged property.
+* Commands class:
+  * ICommandBinding.AddSource now supports also non-public events
+  - Command.CreatePropertyBinding (and CommandBindingsCollection.AddPropertyBinding) works also for simple target
+    properties on IPersistableObjectBase targets.
++ CommandState class: Implements IReadOnlyDictionary<string, object> in .NET 4.5 and above
+
+! KGySoft.Diagnostics namespace:
+================================
++ ITestCaseResult interface: new Error property. Will be set if a test case throws an exception
+! PerformanceTestBase<TDelegate, TResult> class:
+  ! DoTest method: If a test case throws a non-critical exception, then it will be caught. The exception is returned
+    by the ITestCaseResult.Error property and is dumped by the IPerformanceTestResultCollection.DumpResults method.
+
++ KGySoft.Reflection namespace:
+===============================
++ Reflector class: making the EmptyArray<T> method public.
+
+! KGySoft.Serialization.Binary namespace:
+==========================================
+! BinarySerializationFormatter class:
+  - Allowing an IObjectReference to return null if there are no circular references to itself.
+  ! Serialization stream has been changed for non-natively supported object graphs (the stream is not compatible
+    with previous versions)
+
+
+~~~~~~~~~
+- v5.0.1:
+~~~~~~~~~
+
+- KGySoft.CoreLibraries namespace:
+==================================
+- Enum<TEnum> class: An exception could come from IsDefined(long/ulong) and GetName(long/ulong) methods if
+  if no other members were called previously with the same enum type.
+ 
+
+~~~~~~~~~
+! v5.0.0:
+~~~~~~~~~
+
++ Assembly changes:
+===================
++ Targeting also .NET Framework 4.7.2.
++ Targeting also .NET Core 2.0.
++ Targeting also .NET Core 3.0.
++ Targeting also .NET Standard 2.0 (some Reflection APIs throw PlatformNotSupportedException - see the documentation).
++ Targeting also .NET Standard 2.1.
+
+! KGySoft namespace:
+====================
+! PublicResources Class:
+  ! ICollectionNongenericValueTypeInvalid method has been renamed to ICollectionNonGenericValueTypeInvalid
+  ! IDictionaryNongenericKeyTypeInvalid method has been renamed to IDictionaryNonGenericKeyTypeInvalid
+
+! KGySoft.Collections namespace:
+================================
+! Cache<TKey, TValue> class:
+  + New constructor for initializing from IDictionary<TKey, TValue>
+  ! The non-generic IDictionary.this[object] indexer returns null instead of throwing an ArgumentException if type
+    of the indexer argument is not compatible with TKey (this is how Dictionary<TKey, TValue> also works).
+! CircularSortedList<TKey, TValue> class:
+  ! The non-generic IDictionary.this[object] indexer returns null instead of throwing an ArgumentException if type
+    of the indexer argument is not compatible with TKey (this is how SortedList<TKey, TValue> also works).
+
+! KGySoft.CoreLibraries namespace:
+==================================
++ New TypeNameKind enum: For the TypeExtensions.GetName method.
+! DictionaryExtensions class:
+  ! GetValueOrDefault<TKey, TValue, TActualValue>: Caused a functional conflict in .NET Core so this method has been
+    renamed to GetActualValueOrDefault. For compatibility reasons the overload for string-object dictionaries
+	has not been renamed.
+  + In .NET 3.5, 4.0 and 4.5 a new GetValueOrDefault<TKey, TValue> overload has been added with the same functionality
+    as .NET Core has. Actually this functionality was provided by the old GetValueOrDefault<TKey, TValue, TActualValue>
+	overload when TValue and TActualValue were the same.
+  + New GetValueOrDefault overloads for IEnumerable<KeyValuePair<TKey, Tvalue>> instances to support also read-only
+    dictionaries. The parameter type is not IReadOnlyDictionary<TKey, TValue> because that would cause ambiguity due
+	to the interface inheritance of .NET. In case of non-dictionary instances a sequential search is performed.
+  + New GetValueOrDefault overloads with Func<TValue> default value factory. These are useful if the default value
+    should be evaluated only if the key does not exist in the dictionary.
++ Enum<TEnum> class:
+  + New GetFlagsMask method: Similar to GetFlags methods but returns all flags in a single value.
+  + New GetFlagsCount methods.
+  + New ToString overload (only for performance optimization, there is no any feature change).
+  * Reducing heap usage and improving performance in all platform targets.
+- EnumerableExtensions class: Fixing non-generic TryAddRange/TryInsertRange/TryRemoveRange/TryReplaceRange if they
+  are called multiple times with generic collections of different generic argument types.
++ ObjectExtensions class:
+  + The DeepClone<T> method now has an optional ignoreCustomSerialization parameter, which allows cloning even if
+    the ISerializable members throw exceptions (eg. PlatformNotSupportedException in .NET Core).
+  + New In overload with ReadOnlySpan (only in .NET Core 3.0 and .NET Standard 2.1)
++ RandomExtensions class:
+  + New NextString overloads
+  + New NextChars methods to fill up or return a char buffer instead of returning a string instance
+  * Reducing heap usage and improving performance in all platform targets.
++ EnumExtensions class:
+  + New GetFlagsCount method
+! TypeExtensions class:
+  ! IsGenericTypeOf method returns false if the type to check is not a constructed generic type (it returned true
+    if the type and genericTypeDefinition parameters were the same generic type definition instance).
+  + New GetName extension methods for formatting type names in a more consistent way than Type members.
++ Range<T> struct:
+  + New Deconstruct method.
+  + New operators for converting from T, (T, T). Not available in .NET 3.5, .NET 4.0 and .NET 4.5 versions.
++ ThreadSafeRandom class:
+  + New NextBytes overload for Span<char> (only in .NET Core 3.0 and .NET Standard 2.1)
+
+- KGySoft.Diagnostics namespace:
+================================
+- Profiler: Handling possible SecurityException from a partially trusted domain when determining executing directory.
+
+! KGySoft.Reflection namespace:
+===============================
++ New types:
+  + ResolveAssemblyOptions enum
+  + New ResolveTypeOptions enum
+! Reflector class:
+  ! ResolveAssembly(string,bool,bool) method:
+    ! This method is now obsolete in favor of the new overloads.
+    ! Earlier the method returned null if the assembly could not be resolved and tryToLoad was false, and
+      threw an exception on load errors. From now on this overload returns always null if the assembly
+      cannot be resolved. Use the other overloads with ResolveAssemblyOptions.ThrowError flag to throw a
+      ReflectionException on resolve errors.
+  + New ResolveAssembly(string,ResolveAssemblyOptions) method
+  + New ResolveAssembly(AssemblyName,ResolveAssemblyOptions) method
+  ! ResolveType(string,bool,bool) method:
+    ! This method is now obsolete in favor of the new overloads.
+    ! The bool parameters have been renamed to reflect the current behavior better. The default values have
+      been adjusted to provide a better compatibility with the former behavior.
+    ! Earlier the method could return null or throw an exception depending on the nature of the resolving error.
+      From now on the result is always null if the type cannot be resolved. Use the other overloads with
+      ResolveTypeOptions.ThrowError flag to throw a ReflectionException on resolving errors.
+  ! ResolveType(Assembly,string) method:
+    + A new optional ResolveTypeOptions parameter have been added.
+    ! Earlier the method could return null or throw an exception depending on the nature of the resolving error.
+      From now on if the type cannot be resolved the result is always null if the options parameter does not contain
+      the ResolveTypeOptions.ThrowError flag (default behavior), or throws a ReflectionException if the options
+      parameter contains the ResolveTypeOptions.ThrowError flag.
+  + New ResolveType(string,ResolveTypeOptions) method. New main features:
+    + It can be controlled whether an exception should be thrown if type cannot be resolved.
+    + It can be controlled whether to use case insensitive resolving.
+    + Generic parameters and open constructed generics are supported if they were dumped by TypeExtensions.GetName.
+    + More consistent behavior for partial assembly matching.
+  - [Try]InvokeMethod overloads by method name: Considering the methods also in the object class.
+
+* KGySoft.Resources namespace:
+==============================
+- ResXResourceManager: Handling possible SecurityException from a partially trusted domain when determining
+  executing directory.
++ ResXResourceReader/ResXResourceWriter: Supporting every RuntimeType instance natively.
+
++ KGySoft.Security.Cryptography namespace
+=========================================
++ SecureRandom class:
+  + New NextBytes overload for Span<char> (only in .NET Core 3.0 and .NET Standard 2.1)
+
+! KGySoft.Serialization namespace:
+==================================
+! Has been split to KGySoft.Serialization.Binary and KGySoft.Serialization.Xml namespaces.
+
+! KGySoft.Serialization.Binary namespace:
+=========================================
++ New types:
+  + CustomSerializerSurrogateSelector class: Makes possible to customize the serialization and deserialization
+    process both with the original BinaryFormatter and KGy SOFT BinarySerializationFormatter. Can be useful for
+    serializing non-serializable types or deserializing changed types even across different platforms, eg.
+    .NET Framework and .NET Core.
+  + ISerializationBinder interface: Contains the same members as the SerializationBinder class in .NET 4.0 and
+    later and allows for BinarySerializationFormatter to use the BindToName method in .NET 3.5 as well.
+  + ForwardedTypesSerializationBinder class: Allows to define mappings for legacy assembly identities as well as
+    using writing the legacy identity of a forwarded type. This makes possible to use the .NET Framework assembly
+    identities even in .NET Core and .NET Standard, for example.
+  + CustomSerializationBinder class: Provides delegate callback properties to customize Type-name binding.
+  + SerializationInfoExtensions class: Extension methods for manipulating a SerializationInfo instance.
+  + ISerializationBinder interface.
+  + SerializingEventArgs class.
+  + DeserializingEventArgs class.
+  + GettingFieldEventArgs class.
+  + SettingFieldEventArgs class.
+  + ObjectDataObtainedEventArgs class.
+  + ObjectDataRestoredEventArgs class.
+! BinarySerializationFormatter:
+  ! The serialized stream is more compact than before (also meaning, not compatible with previous versions)
+  ! The SerializationBinder that is set in the Binder property is not called for constructed generic types and
+    natively supported types anymore. Instead, it is called for the generic type definition and the element types
+    separately. To call the binder for supported non-primitive types the ForceRecursiveSerializationOfSupportedTypes
+    flag can be enabled in the options.
+  + Supporting runtime types natively. It was required for .NET Core/Standard that cannot serialize Type instances.
+  + Supporting serialization of pointer fields.
+  + Supporting ISerializationSurrogate instances, which replace the deserialized object as long as they do not
+    prevent resolving circular references.
+  ! Considering the TypeForwardedFromAttribute attributes of types on serialization, unless the
+    IgnoreTypeForwardedFromAttribute flag is enabled.
+  * Improving performance.
+  - Some edge case issues have been fixed:
+    - If different custom serialized types set the same type by string in SerializationInfo using different names,
+      which were resolved to the same type, then the deserialization failed.
+    - If non-sealed nested collections were serialized where the base type of an inner collection was a natively
+      supported one, and an inner collection element had a derived collection type, then the actual collection type
+      was ignored and the deserialized inner collection had the base element type.
+    - Resolvable circular references to IObjectReference instances were not handled for natively supported collection
+      elements.
+! IBinarySerializable interface:
+  ! The options parameter of the special constructor and the Deserialize methods get the options of the
+    deserialization rather than the original one used for the serialization. If that info is needed you need to save
+    it into the custom serialized data.
++ AnyObjectSerializerWrapper class:
+  + New optional forceSerializationByFields parameter in constructor.
++ BinarySerializationOptions:
+  + New ForceRecursiveSerializationOfSupportedTypes flag.
+  + New IgnoreTypeForwardedFromAttribute flag.
++ BinarySerializer: Adding optional BinarySerializationOptions parameter to deserialization methods.
+* WeakAssemblySerializationBinder:
+  + Implements ISerializationBinder.
+  + The OmitAssemblyNameOnSerialize property is available also in .NET 3.5. A BinaryFormatter still ignores this
+    property in .NET 3.5 (though it does not affect functionality) but BinarySerializationFormatter is now able
+    to use that in all .NET versions.
+  + New IgnoreAssemblyNameOnResolve property: If assembly information is available on deserialization but the
+    type cannot be resolved from that assembly, then this property allows to resolve the type from any loaded
+    assemblies if possible.
+
+! KGySoft.Serialization.Xml namespace:
+======================================
+! XmlSerializer:
+  - Fixing array type names when XmlSerializationOptions.FullyQualifiedNames is set.
+  + Supporting every RuntimeType instance natively.
+  ! Considering the TypeForwardedFromAttribute attributes of types on serialization, unless the
+    IgnoreTypeForwardedFromAttribute flag is enabled.
++ XmlSerializationOptions:
+  + New IgnoreTypeForwardedFromAttribute flag.
+
+
+~~~~~~~~~
+! v4.7.0:
+~~~~~~~~~
+
++ KGySoft namespace:
+====================
++ PublicResources class: Some new resources.
+
+- KGySoft.CoreLibraries namespace:
+==================================
+- StreamExtensions.ToArray: Fixing an edge case-scenario
+
++ KGySoft.Collections.ObjectModel namespace:
+============================================
++ FastLookupCollection<T>: New OnMapRebuilt virtual method so derived classes can react to detected inconsistencies.
+
+! KGySoft.ComponentModel namespace:
+===================================
+! CommandBindingsCollection:
+  ! It is now derived from FastLookupCollection<T> instead of Collection<T>
+  - Disposed bindings cannot be added to the collection.
+  + Add: The source can be a Type for static events.
+* Command:
+  - CreatePropertyBinding: The underlying command was disposed incorrectly.
+  + CreateBinding: The source can be a Type for static events.
++ ICommandBinding:
+  + AddSource: The source can be a Type for static events.
+  + New IsDisposed property.
+! FastBindingList<T>:
+  ! SetItem: Invoking ListChange event with ListChangedType.ItemChanged even if setting the same instance again (compatibility with BindingList<T>).
+  - SetItem: Fixing consistency check so inner map is now not rebuilt that often.
+  - Property changes of elements were not tracked in a deserialized instance.
+  + If CheckConsistency is true, then subscription of element property changes can be initialized even for elements added directly
+    to the wrapped collection when they are accessed.
+  - Fixing consistency check in SetItem
+! SortableBindingList<T>:
+  ! SetItem: Invoking ListChange event with ListChangedType.ItemChanged even if setting the same instance again (compatibility with BindingList<T>).
+  - SetItem: Fixing consistency check so inner map is now not rebuilt that often.
+
+! KGySoft.Resources namespace:
+==============================
+* ResXDataNode:
+  - Base path to a file reference is not lost even if raw XML data is cleaned up
+  + Implements ICloneable
++ IExpandoResourceSet: New CloneValues property
++ ResXResourceSet: New CloneValues property
++ IExpandoResourceManager:
+  + New CloneValues property
+  + New GetStream method
+! ResXResourceManager:
+  + New CloneValues property
+  ! To be compatible with ResourceManager the default value of CloneValues is true, so Get[Meta]Object and Get[Meta]Enumerator will return a copy
+    of the stored objects by default. For compatibility with earlier behavior set CloneValues to false.
+  ! New GetStream methods: Since in the base ResourceManager these methods are not overridable these are newly defined methods.
+    Unlike the base methods, these have MemoryStream return type (instead of UnmanagedMemoryStream).
+! HybridResourceManager:
+  ! If SafeMode is true the GetString methods do not throw an InvalidOperationException even if the result is from a compiled resource.
+  + New CloneValues property
+  ! To be compatible with ResourceManager the default value of CloneValues is true, so Get[Meta]Object and Get[Meta]Enumerator will return a copy
+    of the stored objects by default. For compatibility with earlier behavior set CloneValues to false.
+  ! New GetStream methods: Since in the base ResourceManager these methods are not overridable these are newly defined methods.
+    Unlike the base methods, these have MemoryStream return type (instead of UnmanagedMemoryStream).
+
+~~~~~~~~~
+* v4.6.2:
+~~~~~~~~~
+
+* KGySoft.CoreLibraries namespace:
+==================================
++ ObjectExtensions.[Try]Convert methods: New pre-registered conversions to use long/ulong as intermediate steps if possible.
++ GenerateObjectSettings: New MaxRecursionLevel property.
+* RandomExtensions.NextObject:
+  - Avoiding SecurityException better from partially trusted domain
+  + Collections for read-only properties can be generated in more cases
++ ThreadSafeRandom class: Adding a new static Instance property.
+
+* KGySoft.ComponentModel namespace:
+===================================
++ ICommandBinding:
+  + New Executing and Executed events
+  + New Sources, Targets and StateUpdaters properties
+  * AddStateUpdater method: new optional parameter
+  + New InvokeCommand method
+
+- KGySoft.Diagnostic namespace:
+===============================
+- PerformanceTestBase: Avoiding SecurityException from partially trusted domain if possible
+
+* KGySoft.Reflection namespace:
+===============================
+* Changing default strategy for ReflectionWays.Auto in some CreateInstance overload
+- Reflector class: Fixing value test compatibility in TrySetProperty overloads
+- MemberAccessor classes: Detecting security settings conflict and providing a more informative message for the caught VerificationException.
+
+- KGySoft.Serialization namespace:
+==================================
+- BinarySerializationFormatter: Avoiding SecurityException from a partially trusted domain if possible
+- XmlSerializer: Fixing serialization visibility inheritance of properties
+
+~~~~~~~~~
+* v4.6.1:
+~~~~~~~~~
+- Assembly: Resetting SecurityRuleSet.Level1 because otherwise types that implement ISerializable
+  cannot be even instantiated from a partially trusted domain.
+  See also: See also https://stackoverflow.com/questions/48355591/how-can-i-implement-iserializable-in-net-4-without-violating-inheritance-secur
+
+- KGySoft.CoreLibraries namespace:
+==================================
+- EnumComparer<TEnum>: It is an abstract class now and uses different implementations for fully and partially trusted domains
+  to avoid System.Security.VerificationException for emitted IL code.
+- RandomExtensions.NextDecimal: Fixing overflow exception for an edge case.
+
+* KGySoft.Collections namespace:
+================================
+* Cache<TKey, TValue>:
+  * Instead of wrapping a Dictionary with a CacheItem reference type, now implements hashing directly where keys and values
+    are stored in value type entries for better performance and smaller memory consumption.
+  + A new constructor overload.
+  * Not a sealed class anymore. Similarly to Dictionary<TKey, TValue>, only serialization-related members are virtual.
+  + New protected GetObjectData and OnDeserialization methods.
+  + DisposeDroppedValues property: If an item is removed from the cache internally (or a concurrently loaded item is discarded
+    by an IThreadSafeCacheAccessor) and the item is IDisposable, then it can be disposed if this property is true.
+
++ KGySoft.Diagnostics namespace:
+================================
++ PerformanceTestBase<TDelegate, TResult>: New OnBeforeCase and OnAfterCase protected methods.
+
+~~~~~~~~~
+! v4.6.0:
+~~~~~~~~~
+
+! Assembly: Applying SecurityRuleSet.Level2 and adjusting security critical calls in the whole assembly.
+  This is a breaking change for .NET4.0 and above only if the caller assembly is partially trusted or is
+  security transparent and tries to call the few of the public methods, which are security critical.
+
++ KGySoft namespace:
+==================================
++ PublicResources class: Provides localizable public string resources that can be used in any project.
+
+* KGySoft.CoreLibraries namespace:
+==================================
+* Enum<TEnum>: Improving performance of parsing with insensitive case
+
+* KGySoft.Reflection namespace:
+===============================
+* Reflector class: Improving the performance of invoke by name if there are no multiple members of the same name.
+
+~~~~~~~~~
+* v4.5.1:
+~~~~~~~~~
+Adjusting security settings.
+
+~~~~~~~~~
+! v4.5.0:
+~~~~~~~~~
+
+! KGySoft.CoreLibraries namespace:
+==================================
+! Moved here from the KGySoft.Libraries namespace
++ New DateTimeExtensions class
+  + AsUtc method
++ New DictionaryExtensions class
+  + GetValueOrDefault methods
++ New WaitHandleExtensions class (only in .NET 4.5 and above)
+  + WaitOneAsync methods
++ New CharExtensions class
+  + IsNonCharacter method
+  + IsValidCharacter method
+! StringComparerExtensions class: removed (moved to StringExtensions)
+! StringExtensions class:
+  ! GetTokenValue methods are removed
+  + ToEnum method
+  + EqualsAny/IndexOfAny/ContainsAny overloads
+* EnumerableExtensions class
+  + TryAdd/TryClear/TryInsert/TryRemove/TryRemoveAt/TrySetElementAt/TryGetElementAt methods
+  + TryAddRange/TryInsertRange/TryRemoveRange/TryReplaceRange methods
+  + New overloads for IndexOf methods
+  + New Shuffle overload: can be used with an already existing Random instance.
+  + New GetRandomElement methods
++ New RandomExtensions class
+  + ... TODO
++ TypeExtensions class
+  + IsDelegate method
+  + IsGenericTypeOf method
+  + IsImplementationOfGenericType methods
+
+! KGySoft.Collections namespace:
+================================
+! Moved here from the KGySoft.Libraries.Collections namespace
+
+! KGySoft.Diagnostics namespace:
+================================
+! Moved here from the KGySoft.Libraries.Diagnostics namespace
++ PerformanceTest classes (actually moved to the libraries from the PerformanceTest project)
+
+* KGySoft.ComponentModel namespace:
+===================================
++ New type converter: BinaryTypeConverter: A TypeConverter that can convert any type to byte[] or string.
+- FlagsEnumConverter fix: Now works for all enum types of any underlying type.
++ Interfaces and base classes for business objects and ViewModel classes:
+  + IPersistableObject
+  + ObservableObjectBase
+  + PersistableObjectBase
+  + UndoableObjectBase
+  + EditableObjectBase
+  + ValidatingObjectBase
+  + ModelBase
+
+! KGySoft.Libraries namespace:
+==============================
+
+! Crc32 class: Moved to the KGySoft.Security.Cryptography namespace
+! Unicode class: Removed
+! KGySoft.Libraries.Collections namespace: Moved to the KGySoft.Collections namespace
+! KGySoft.Libraries.Diagnostics namespace: Moved to the KGySoft.Diagnostics namespace
+! KGySoft.Libraries.Reflection namespace: Moved to the KGySoft.Reflection namespace
+! KGySoft.Libraries.Serialization namespace: Moved to the KGySoft.Serialization namespace
+
+* KGySoft.Serialization namespace:
+==================================
+! Moved here from the KGySoft.Libraries.Serialization namespace
+! XmlSerializer:
+  ! XmlSerializationOptions change: 
+    ! Obsolete flag ForcedSerializationValueTypesAsFallback removed.
+    ! BinarySerializationAsFallback is applied also for root-level collections
+    * None option allows to serialize some trusted collection types and object with only public properties and fields.
+    + New flag: ExcludeFields - to serialize public properties only.
+    + New flag: ForcedSerializationOfReadOnlyMembersAndCollections - to serialize read-only properties and fields even if they are not
+      mutable collections or IXmlSerializable instances. Enabling this flag can be used for one-way serialization only (eg. for logs),
+      because it is high likely that the object will not be able to be deserialized.
+  + Escaping is possible even if a value is converted by a TypeConverter
+  + Creates instances internally so there is no locking when used parallelly
+  + Supporting read-only collections with initializer constructor
+  + Supporting public fields (can be disabled by ExcludeFields option)
+  + Supporting objects without default constructor, if they are fields or properties of a parent object,
+    which are not null after creating the parent.
+  + Supporting types with conflicting member names (non-virtual redefined members in derived classes).
+
+! KGySoft.Reflection namespace:
+================================
+! Moved here from the KGySoft.Libraries.Reflection namespace
+! MethodInvoker has been renamed to MethodAccessor
+! ObjectFactory has been renamed to CreateInstanceAccessor
++ Reflector: Try... methods
+
++ KGySoft.Resources namespace:
+========================================
++ ResXDataNode: Like System.Resources.ResXDataNode with more functionality. Makes possible to obtain every information
+  of the raw XML data before serializing.
+  Compatible with the System.Resources version without referencing the System.Windows.Forms.dll
++ ResXFileRef class: Like System.Resources.ResXFileRef with some improvements.
+  Compatible with the System.Resources version without referencing the System.Windows.Forms.dll
++ ResXResourceReader: Like System.Resources.ResXResourceReader with several improvements.
++ ResXResourceWriter: Like System.Resources.ResXResourceWriter with several improvements.
++ ResXResourceSet: Like System.Resources.ResXResourceSet with expansion support.
++ ResXResourceManager: Like System.Resources.ResourceManger but works with .resx files directly and supports expansion.
++ HybridResourceManager: A ResourceManger that works with binary and .resx files and supports expansion.
++ DynamicResourceManager: A HybridResourceManger with auto append and auto save support.
+
++ KGySoft.Security.Cryptography namespace:
+==========================================
+
+! Crc32:
+  ! Moved here from the KGySoft.Libraries namespace
+  + Lookup tables for different polynomials are now cached.
+  + Now uses the slice-by-16 technique for better performance.
++ SecureRandom: A RandomNumberGenerator wrapper for generating cryptographically secure random numbers, which is compatible with the
+  Random class, so all of the extensions in the RandomExtensions can be used also for the SecureRandom class.

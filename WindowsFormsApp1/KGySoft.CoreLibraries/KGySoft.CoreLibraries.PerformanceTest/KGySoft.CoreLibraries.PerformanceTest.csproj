@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net35;net40;net45;net472;netcoreapp2.0;netcoreapp2.1;netcoreapp3.0;net5.0;net6.0</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0</TargetFrameworks>-->
+
+    <!--For UnitTesting the .NET Standard versions-->
+    <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
+    
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <RootNamespace>KGySoft.CoreLibraries</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+
+    <!-- NUnit does not run .NET 3.5 tests on the correct runtime and .NET Core 2.0 tests at all so the tests for these targets can be executed as a console app -->
+    <OutputType>Exe</OutputType>
+    <GenerateProgramFile>false</GenerateProgramFile>
+
+    <!--Suppression NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\KGySoft.CoreLibraries.UnitTest\Resources\TestResourceResX.resx" Link="Resources\TestResourceResX.resx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="NUnit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" >
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- .NET Core 3.0 only references -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="System.Resources.Extensions" Version="5.0.0"/>
+  </ItemGroup>
+
+  <!-- .NET only references -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries.csproj" />
+  </ItemGroup>
+
+</Project>
